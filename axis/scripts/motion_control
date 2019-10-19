@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+import rospy
+from axis.stepper_control import StepperControl
+from axis.msg import StepperCommand
+
+class MotionControl(object):
+    def __init__(self, control_pins, enable_pin, name):
+        self.stepper_control = StepperControl(control_pins, enable_pin)
+        self.name = name
+        self.sub = rospy.Subscriber('stepper_commands', StepperCommand, self.moveStepper)
+        rospy.on_shutdown(self.shutdown)
+
+    def moveStepper(self, stepper_command):
+        if not self.name == stepper_command.name:
+            return
+
+        print "received stepper command: steps=%i, delay=%f, name=%s" % (stepper_command.steps, stepper_command.delay, stepper_command.name)
+        self.enable()
+        
+        if stepper_command.steps > 0:
+            self.stepper_control.forward(stepper_command.steps, stepper_command.delay)
+        else:
+            self.stepper_control.backward(abs(stepper_command.steps), stepper_command.delay)
+        
+        self.disable()
+
+    def shutdown(self):
+        self.disable()
+
+    def disable(self):
+        self.stepper_control.disable()
+
+    def enable(self):
+        self.stepper_control.enable()
+
+if __name__ == '__main__':
+    rospy.init_node('motion_control', anonymous=True)
+    motionControl_0 = MotionControl([ 26, 19, 13, 6 ], 4, "stepper_0")
+    motionControl_1 = MotionControl([ 5, 22, 27, 17 ], 3, "stepper_1")
+    motionControl_2 = MotionControl([ 21, 20, 16, 12 ], 14, "stepper_2")
+    motionControl_3 = MotionControl([ 25, 24, 23, 18 ], 2, "stepper_3")
+    
+    rospy.spin()

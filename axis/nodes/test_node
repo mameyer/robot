@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+
+print "importing main from Python package axis in test_node"
+from drives import main
+print "imported main from Python package axis in test_node"
+
+if __name__ == '__main__':
+    print "executing main() in test_node"
+    main()
