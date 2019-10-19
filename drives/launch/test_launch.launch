@@ -1,0 +1,3 @@
+<launch>
+    <node name="test_node" pkg="drives" type="test_node" /> 	
+</launch>
